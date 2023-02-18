@@ -11,14 +11,12 @@ return new class extends Migration
    */
   public function up(): void
   {
-    Schema::create('users', function (Blueprint $table) {
+    Schema::create('loans', function (Blueprint $table) {
       $table->id();
-      $table->string('name');
-      $table->string('ni')->unique();
-      // $table->timestamp('email_verified_at')->nullable();
-      $table->string('password');
-      $table->enum('user_type', ['Students', 'Teachers', 'Admin', 'Super Admin']);
-      $table->rememberToken();
+      $table->foreignId('user_id');
+      $table->foreignId('book_id');
+      $table->unsignedInteger('total_loan');
+      $table->integer('loan_code');
       $table->timestamps();
     });
   }
@@ -28,6 +26,6 @@ return new class extends Migration
    */
   public function down(): void
   {
-    Schema::dropIfExists('users');
+    Schema::dropIfExists('loans');
   }
 };
