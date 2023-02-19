@@ -26,12 +26,52 @@ class DatabaseSeeder extends Seeder
     //   'name' => 'Admin',
     //   'ni'   => '1',
     //   'password' => bcrypt('password'),
-    //   'user_type' => 'Super Admin'
+    //   'role' => 'Super Admin'
     // ]);
-    User::create(['name' => 'Admin',
-    'ni'   => '1',
-    'password' => bcrypt('password'),
-    'user_type' => 'Super Admin']);
+
+    User::create([
+      'name' => 'Super Admin',
+      'ni'   => '1',
+      'password' => bcrypt('password'),
+      'role' => 'Super Admin'
+    ]);
+
+    User::create([
+      'name' => 'Admin',
+      'ni'   => '2',
+      'password' => bcrypt('password'),
+      'role' => 'Admin'
+    ]);
+
+    User::create([
+      'name' => 'Teacher',
+      'ni'   => '3',
+      'password' => bcrypt('password'),
+      'role' => 'Teachers'
+    ]);
+
+    User::create([
+      'name' => 'Student 1',
+      'ni'   => '210101',
+      'password' => bcrypt('password'),
+      'role' => 'Students'
+    ]);
+
+    User::create([
+      'name' => 'Student 2',
+      'ni'   => '210102',
+      'password' => bcrypt('password'),
+      'role' => 'Students'
+    ]);
+
+    User::create([
+      'name' => 'Student 3',
+      'ni'   => '210103',
+      'password' => bcrypt('password'),
+      'role' => 'Students'
+    ]);
+    
+
     Book::factory(20)->create();
   }
 }

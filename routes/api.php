@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\LoansController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,10 +16,18 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+// Route::post('register', [AuthController::class, 'signup']);
+Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::resource('books', BookController::class);
+Route::middleware('auth:sanctum')->group(function(){
+    Route::resource('books', BookController::class);
+    Route::resource('loans', LoansController::class);
+    Route::post('logout', [AuthController::class, 'logout']);
+});
+
+
 // Route::post('simpan', [BookController::class, 'store']);
