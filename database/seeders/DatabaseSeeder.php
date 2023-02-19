@@ -22,12 +22,16 @@ class DatabaseSeeder extends Seeder
     //     'name' => 'Test User',
     //     'email' => 'test@example.com',
     // ]);
-    DB::table('users')->insert([
-      'name' => 'Admin',
-      'ni'   => '1',
-      'password' => bcrypt('password'),
-      'user_type' => 'Super Admin'
-    ]);
+    // DB::table('users')->insert([
+    //   'name' => 'Admin',
+    //   'ni'   => '1',
+    //   'password' => bcrypt('password'),
+    //   'user_type' => 'Super Admin'
+    // ]);
+    User::create(['name' => 'Admin',
+    'ni'   => '1',
+    'password' => bcrypt('password'),
+    'user_type' => 'Super Admin']);
     Book::factory(20)->create();
   }
 }

@@ -12,7 +12,8 @@ return new class extends Migration
   public function up(): void
   {
     Schema::create('loans', function (Blueprint $table) {
-      $table->id();
+      // $table->id();
+      $table->uuid('id')->primary();
       $table->foreignId('user_id');
       $table->foreignId('book_id');
       $table->unsignedInteger('total_loan');

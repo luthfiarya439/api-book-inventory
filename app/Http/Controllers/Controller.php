@@ -13,7 +13,25 @@ class Controller extends BaseController
 
   protected function ok($data = null, string $message = '', int $status = 200)
   {
+    return response()->json(
+      [
+        'success'     => true,
+        'code'        => $status,
+        'message'     => $message,
+        'data'        => $data
+      ]
+    );
     // return response()->json($data, $status);
-    return $this->responseJson($data, $message, $status);
+    // return $this->responseJson($data, $message, $status);
+  }
+
+  protected function error($message, int $status = 500, array $errors = [])
+  {
+    return response()->json([
+      'success'   => false,
+      'code'      => $status,
+      'message'   => $message,
+      'errors'    => $errors
+    ], $status);
   }
 }
