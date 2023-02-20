@@ -22,67 +22,75 @@ class AuthController extends Controller
       return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
     }
 
-    // if(Auth::attempt(['ni' => $request->ni, 'password' => $request->password])){
-    //   $auth = Auth::user();
-    //   $token = $auth->createToken('apiToken')->plainTextToken;
-    //   $name = $auth->name;
-    //   return $this->ok(['token' => $token, 'name' => $name], 'login berhasil');
+    if(Auth::attempt(['ni' => $request->ni, 'password' => $request->password])){
+      $auth = Auth::user();
+      $token = $auth->createToken('apiToken')->plainTextToken;
+      $name = $auth->name;
+      return $this->ok(['token' => $token, 'name' => $name], 'login berhasil');
+    }
+
+    // $user = User::where('ni', $request->ni)->first();
+
+    // if($user){
+    //   if($user->role == 'Super Admin'){
+    //     if(Hash::check($request->password, $user->password)){
+    //       // create token
+    //       // $user->tokens()->where('name', 'token')->delete();
+    //       $token = $user->createToken('apiToken')->plainTextToken;
+
+    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
+    //     }
+    //     else{
+    //       return $this->error('Password Salah', 422);
+    //     }
+    //   }
+    //   if($user->role == 'Admin'){
+    //     if(Hash::check($request->password, $user->password)){
+    //       // create token
+    //       // $user->tokens()->where('name', 'token')->delete();
+    //       $token = $user->createToken('apiToken')->plainTextToken;
+
+    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
+    //     }
+    //     else{
+    //       return $this->error('Password Salah', 422);
+    //     }
+    //   }
+    //   if($user->role == 'Teachers'){
+    //     if(Hash::check($request->password, $user->password)){
+    //       // create token
+    //       // $user->tokens()->where('name', 'token')->delete();
+    //       $token = $user->createToken('apiToken')->plainTextToken;
+
+    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
+    //     }
+    //     else{
+    //       return $this->error('Password Salah', 422);
+    //     }
+    //   }
+    //   if($user->role == 'Students'){
+    //     if(Hash::check($request->password, $user->password)){
+    //       // create token
+    //       // $user->tokens()->where('name', 'token')->delete();
+    //       $token = $user->createToken('apiToken')->plainTextToken;
+
+    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
+    //     }
+    //     else{
+    //       return $this->error('Password Salah', 422);
+    //     }
+    //   }
     // }
+    // else{
+    //   return $this->error('Pengguna Tidak Diketahui!', 404);
+    // }
+  }
 
-    $user = User::where('ni', $request->ni)->first();
+  public function logout(Request $request)
+  {
+    $user = $request->user();
+    $user->currentAccessToken()->delete();
 
-    if($user){
-      if($user->role == 'Super Admin'){
-        if(Hash::check($request->password, $user->password)){
-          // create token
-          // $user->tokens()->where('name', 'token')->delete();
-          $token = $user->createToken('apiToken')->plainTextToken;
-
-          return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-        }
-        else{
-          return $this->error('Password Salah', 422);
-        }
-      }
-      if($user->role == 'Admin'){
-        if(Hash::check($request->password, $user->password)){
-          // create token
-          // $user->tokens()->where('name', 'token')->delete();
-          $token = $user->createToken('apiToken')->plainTextToken;
-
-          return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-        }
-        else{
-          return $this->error('Password Salah', 422);
-        }
-      }
-      if($user->role == 'Teachers'){
-        if(Hash::check($request->password, $user->password)){
-          // create token
-          // $user->tokens()->where('name', 'token')->delete();
-          $token = $user->createToken('apiToken')->plainTextToken;
-
-          return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-        }
-        else{
-          return $this->error('Password Salah', 422);
-        }
-      }
-      if($user->role == 'Students'){
-        if(Hash::check($request->password, $user->password)){
-          // create token
-          // $user->tokens()->where('name', 'token')->delete();
-          $token = $user->createToken('apiToken')->plainTextToken;
-
-          return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-        }
-        else{
-          return $this->error('Password Salah', 422);
-        }
-      }
-    }
-    else{
-      return $this->error('Pengguna Tidak Diketahui!', 404);
-    }
+    return $this->ok('', 'berhasil logout');
   }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\LoansController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,18 +17,24 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-// Route::post('register', [AuthController::class, 'signup']);
+
 Route::post('login', [AuthController::class, 'login']);
+  
+Route::middleware('auth:sanctum')->group(function () {
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+  Route::post('logout', [AuthController::class, 'logout']);
+  Route::get('/user', function (Request $request) {
     return $request->user();
+  });
+
+  Route::middleware('checkrole:Admin')->group(function () {
+    Route::resource('admin/books', BookController::class);
+    Route::resource('admin/loans', LoansController::class);
+    Route::resource('admin/users', UserController::class);
+  });
+
+  Route::middleware('checkrole:User')->group(function () {
+    Route::get('books', [BookController::class, 'index']);
+    Route::resource('loans', LoansController::class)->only(['index', 'store']);
+  });
 });
-
-Route::middleware('auth:sanctum')->group(function(){
-    Route::resource('books', BookController::class);
-    Route::resource('loans', LoansController::class);
-    Route::post('logout', [AuthController::class, 'logout']);
-});
-
-
-// Route::post('simpan', [BookController::class, 'store']);

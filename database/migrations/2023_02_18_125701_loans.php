@@ -16,8 +16,8 @@ return new class extends Migration
       $table->uuid('id')->primary();
       // $table->foreignId('user_id');
       // $table->foreignId('book_id');
-      $table->uuid('user_id');
-      $table->uuid('book_id');
+      $table->foreignUuid('user_id');
+      $table->foreignUuid('book_id');
       $table->unsignedInteger('total_loan');
       $table->integer('loan_code');
       $table->timestamps();
