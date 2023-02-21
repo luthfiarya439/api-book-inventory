@@ -18,7 +18,8 @@ return new class extends Migration
       $table->string('book_title');
       $table->string('author');
       $table->string('publisher');
-      $table->unsignedInteger('stock');
+      $table->unsignedInteger('available_stock');
+      $table->unsignedInteger('total_stock');
       $table->timestamps();
     });
   }

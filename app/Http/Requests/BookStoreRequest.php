@@ -22,11 +22,12 @@ class BookStoreRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'book_code'     => 'required|string|max:255',
-      'book_title'    => 'required|string|max:255',
-      'author'        => 'required|string|max:255',
-      'publisher'     => 'required|string|max:255',
-      'stock'         => 'required|integer'
+      'book_code'         => 'required|string|max:255',
+      'book_title'        => 'required|string|max:255',
+      'author'            => 'required|string|max:255',
+      'publisher'         => 'required|string|max:255',
+      'available_stock'   => 'required|integer',
+      'total_stock'       => 'required|integer',
     ];
   }
 }

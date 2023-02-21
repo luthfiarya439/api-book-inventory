@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BookStoreRequest;
 use App\Models\Book;
+use App\Models\Loan;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,20 +42,29 @@ class BookController extends Controller
   {
 
     $validator = Validator::make($request->all(), [
-      'book_code'     => 'required|string|max:255',
-      'book_title'    => 'required|string|max:255',
-      'author'        => 'required|string|max:255',
-      'publisher'     => 'required|string|max:255',
-      'stock'         => 'required|integer'
+      'book_code'         => 'required|string|max:255',
+      'book_title'        => 'required|string|max:255',
+      'author'            => 'required|string|max:255',
+      'publisher'         => 'required|string|max:255',
+      'stock'             => 'required|integer',
     ]);
 
     if($validator->fails()){
       return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
     }
 
+    $store_book = [
+      'book_code'         => $request->book_code,
+      'book_title'        => $request->book_title,
+      'author'            => $request->author,
+      'publisher'         => $request->publisher,
+      'available_stock'   => (int)$request->stock,
+      'total_stock'   => (int)$request->stock,
+    ];
+
     try {
       DB::beginTransaction();
-      $store = Book::create($validator->validated());
+      $store = Book::create($store_book);
     } catch (\Throwable $th) {
       DB::rollBack();
       return $this->error('gagal simpan buku', 500, ['error' => $th->getMessage()]);
@@ -86,24 +96,39 @@ class BookController extends Controller
   {
 
     $book = Book::findOrFail($id);
+    $loan = DB::table('loans')->where('book_id', '=', $id)->sum('total_loan');
 
-    // return $this->ok($book, '', 200);
+    // return $this->ok(['book' => $book, 'loan' => gettype($loan)], '');
 
     $validator = Validator::make($request->all(), [
-      'book_code'     => 'required|string|max:255',
-      'book_title'    => 'required|string|max:255',
-      'author'        => 'required|string|max:255',
-      'publisher'     => 'required|string|max:255',
-      'stock'         => 'required|integer'
+      'book_code'         => 'required|string|max:255',
+      'book_title'        => 'required|string|max:255',
+      'author'            => 'required|string|max:255',
+      'publisher'         => 'required|string|max:255',
+      'stock'             => 'required|integer',
     ]);
 
+    
     if($validator->fails()){
       return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
     }
+    
+    if((int)$loan > $request->stock){
+      return $this->error('stock tidak boleh kurang dari buku yang sudah di pinjam', 500, []);
+    }
+
+    $update_book = [
+      'book_code'         => $request->book_code,
+      'book_title'        => $request->book_title,
+      'author'            => $request->author,
+      'publisher'         => $request->publisher,
+      'available_stock'   => (int)$request->stock - (int)$loan,
+      'total_stock'       => (int)$request->stock,
+    ];
 
     try {
       DB::beginTransaction();
-      $book->update($validator->validated());
+      $book->update($update_book);
     } catch (\Throwable $th) {
       DB::rollBack();
       return $this->error('update error', 500, ['error' => $th->getMessage()]);
@@ -111,7 +136,6 @@ class BookController extends Controller
 
     DB::commit();
     return $this->ok($book, 'berhasil update buku');
-
 
   }
 

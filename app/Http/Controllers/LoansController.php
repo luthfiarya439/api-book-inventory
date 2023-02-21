@@ -62,7 +62,7 @@ class LoansController extends Controller
     if ($book) {
       try {
         DB::beginTransaction();
-        Book::where('id', $request->book_id)->decrement('stock', $request->total_loan);
+        Book::where('id', $request->book_id)->decrement('available_stock', $request->total_loan);
         Loan::create($loan_data);
       } catch (\Throwable $th) {
         DB::rollBack();
@@ -94,9 +94,9 @@ class LoansController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  // public function update(Request $request, string $id): RedirectResponse
+  // public function update(Request $request, string $id): JsonResponse
   // {
-  //     //
+  //   $loan = 
   // }
 
   /**

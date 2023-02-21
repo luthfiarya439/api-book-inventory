@@ -21,7 +21,8 @@ class BookFactory extends Factory
             'book_title' => $this->faker->sentence(mt_rand(1,4)),
             'author' => $this->faker->name(),
             'publisher' => $this->faker->word(),
-            'stock' => $this->faker->numberBetween(0,10)
+            'available_stock' => 10,
+            'total_stock'   => 10
         ];
     }
 }

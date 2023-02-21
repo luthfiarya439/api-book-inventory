@@ -15,6 +15,7 @@ class Book extends Model
     'book_title',
     'author',
     'publisher',
-    'stock',
+    'available_stock',
+    'total_stock',
   ];
 }
