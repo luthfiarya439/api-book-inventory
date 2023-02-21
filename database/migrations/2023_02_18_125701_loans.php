@@ -19,7 +19,7 @@ return new class extends Migration
       $table->foreignUuid('user_id');
       $table->foreignUuid('book_id');
       $table->unsignedInteger('total_loan');
-      $table->integer('loan_code');
+      $table->string('loan_code');
       $table->timestamps();
     });
   }
