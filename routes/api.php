@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoansController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserLoanController;
@@ -30,8 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
   Route::middleware('checkrole:Admin')->group(function () {
     Route::resource('admin/books', BookController::class);
+    Route::get('admin/book/loaned', [BookController::class, 'getLoaned']);
     Route::resource('admin/loans', LoansController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('admin/users', UserController::class);
+    Route::get('admin/dashboard', [DashboardController::class, 'index']);
   });
 
   Route::middleware('checkrole:User')->group(function () {

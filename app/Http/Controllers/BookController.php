@@ -152,4 +152,11 @@ class BookController extends Controller
       return $this->error('gagal menghapus', 500, ['error' => $th->getMessage()]);
     }
   }
+
+
+  public function getLoaned(): JsonResponse
+  {
+    $loaned_book = DB::table('books')->whereColumn('available_stock', '<', 'total_stock')->get();
+    return $this->ok($loaned_book, 'berhasil get buku terpinjam');
+  }
 }
