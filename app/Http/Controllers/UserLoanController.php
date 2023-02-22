@@ -13,7 +13,7 @@ class UserLoanController extends Controller
     $my_loans = DB::table('loans')
       ->join('users', 'loans.user_id', '=', 'users.id')
       ->join('books', 'loans.book_id', '=', 'books.id')
-      ->select('loans.id', 'users.name', 'books.book_title', 'loans.total_loan', 'loans.loan_code')
+      ->select('loans.id', 'users.name', 'loans.book_id', 'books.book_title', 'loans.total_loan', 'loans.loan_code')
       ->where('loans.user_id','=', $user)
       ->get();
 
