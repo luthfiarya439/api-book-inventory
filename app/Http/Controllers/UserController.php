@@ -42,8 +42,8 @@ class UserController extends Controller
       'role'                => 'required'
     ]);
 
-    if($validator->fails()){
-      return $this->error('error validasi',500, ['error' => $validator->messages()->all()]);
+    if ($validator->fails()) {
+      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
     }
 
     $users = [
@@ -63,7 +63,6 @@ class UserController extends Controller
 
     DB::commit();
     return $this->ok($result, 'berhasil tambah user');
-
   }
 
   /**
@@ -85,18 +84,67 @@ class UserController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  // public function update(Request $request, string $id): JsonResponse
-  // {
-  //   $validator = Validator::make($request->all(), [
-  //     ''
-  //   ]);
-  // }
+  public function update(Request $request, string $id): JsonResponse
+  {
+
+    $user = User::findOrFail($id);
+
+    if (empty($request->password)) {
+      $validator = Validator::make($request->all(), [
+        'name'        => 'required|string',
+        'ni'          => 'required|string',
+        'role'        => 'required|string'
+      ]);
+
+      $update_user = [
+        'name'      => $request->name,
+        'ni'        => $request->ni,
+        'role'      => $request->role
+      ];
+    } else {
+      $validator = Validator::make($request->all(), [
+        'name'        => 'required|string',
+        'ni'          => 'required|string',
+        'password'    => 'required|min:8|max:20',
+        'role'        => 'required|string'
+      ]);
+
+      $update_user = [
+        'name'      => $request->name,
+        'ni'        => $request->ni,
+        'password'  => bcrypt($request->password),
+        'role'      => $request->role
+      ];
+    }
+
+    if ($validator->fails()) {
+      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
+    }
+
+    try {
+      DB::beginTransaction();
+      $user->update($update_user);
+    } catch (\Throwable $th) {
+      DB::rollBack();
+      return $this->error('error', 500, ['error' => $th->getMessage()]);
+    }
+
+    DB::commit();
+    return $this->ok($user, 'berhasil update user');
+  }
 
   /**
    * Remove the specified resource from storage.
    */
-  // public function destroy(string $id): RedirectResponse
-  // {
-  //   //
-  // }
+  public function destroy(string $id): JsonResponse
+  {
+    
+    try {
+      $user = User::findOrFail($id);
+      $user->delete();
+    } catch (\Throwable $th) {
+      return $this->error('error', 500, ['error' => $th->getMessage()]);
+    }
+    return $this->ok($user, 'berhasil menghapus user');
+  }
 }
