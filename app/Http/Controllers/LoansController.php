@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Ramsey\Uuid\Uuid;
 
 class LoansController extends Controller
 {
@@ -56,7 +57,7 @@ class LoansController extends Controller
       'user_id'     => auth()->user()->id,
       'book_id'     => $request->book_id,
       'total_loan'  => $request->total_loan,
-      'loan_code'   => rand(1, 100) . rand(1, 100) . rand(1, 100)
+      'loan_code'   => auth()->user()->id . '/' . UUID::uuid4()
     ];
 
     if ($book) {
@@ -98,31 +99,37 @@ class LoansController extends Controller
   {
 
     $get_loan = Loan::findOrFail($id);
-    $sum_loan = DB::table('loans')->where('id', '=', $id)->sum('total_loan');
+    // $sum_loan = DB::table('loans')->where('id', '=', $id)->sum('total_loan');
+    $sum_loan = DB::table('loans')->where('id', '=', $id)->get();
 
     $validator = Validator::make($request->all(), [
       'book_id'     => 'required|string',
-      'loan_code'   => 'required|integer',
+      'loan_code'   => 'required|string',
       'return'      => 'required|integer'
     ]);
 
     if($validator->fails()){
       return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
     }
-
-    if((int)$request->return == (int)$sum_loan){
+    
+    DB::beginTransaction();
+    if((int)$request->return == (int)$sum_loan[0]->total_loan){
       try {
-        DB::beginTransaction();
-        $loan = Loan::where('id', $id)->where('loan_code', $request->loan_code)->delete();
+        $loan = Loan::where('id', $id)->where('loan_code', $request->loan_code)->firstOrFail();
+        $loan->delete();
+      } catch (\Throwable $th) {
+        return $this->error('error', 500, ['error' => $th->getMessage()]);
+        
+      }
+      try {
         Book::where('id', $request->book_id)->increment('available_stock', $request->return);
       } catch (\Throwable $th) {
         DB::rollBack();
         return $this->error('error', 500, ['error' => $th->getMessage()]);
       }
     }
-    elseif((int)$request->return < (int)$sum_loan){
+    elseif((int)$request->return < (int)$sum_loan[0]->total_loan){
       try {
-        DB::beginTransaction();
         $loan = Loan::where('id', $id)->where('loan_code', $request->loan_code)->decrement('total_loan', $request->return);
         Book::where('id', $request->book_id)->increment('available_stock', $request->return);
       } catch (\Throwable $th) {
@@ -136,7 +143,7 @@ class LoansController extends Controller
     }
 
     DB::commit();
-    return $this->ok($loan, 'berhasil mengembalikan buku');
+    return $this->ok('', 'berhasil mengembalikan buku');
   }
 
   /**
