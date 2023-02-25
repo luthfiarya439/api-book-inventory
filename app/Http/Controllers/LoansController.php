@@ -57,7 +57,7 @@ class LoansController extends Controller
       'user_id'     => auth()->user()->id,
       'book_id'     => $request->book_id,
       'total_loan'  => $request->total_loan,
-      'loan_code'   => auth()->user()->id . '/' . UUID::uuid4()
+      'loan_code'   => date('YmdHis'). '-' .rand(0, 100). '-' .rand(101, 200)
     ];
 
     if ($book) {
