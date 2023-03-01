@@ -13,12 +13,14 @@ class DashboardController extends Controller
     $available_stock = DB::table('books')->sum('available_stock');
     $loaned = DB::table('loans')->sum('total_loan');
     $total_book = DB::table('books')->count('id');
+    $total_user = DB::table('users')->where('role', '=', 'User')->count('id');
 
     return $this->ok([
       'total_book'  => $total_book,
       'total_stock' => $total_stock,
       'available_stock' => $available_stock,
-      'loaned'  => $loaned
+      'loaned'  => $loaned,
+      'total_user'  => $total_user
     ], 'berhasil');
   }
 }

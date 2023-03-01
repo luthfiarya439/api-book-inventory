@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\UsersImport;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -146,5 +148,19 @@ class UserController extends Controller
       return $this->error('error', 500, ['error' => $th->getMessage()]);
     }
     return $this->ok($user, 'berhasil menghapus user');
+  }
+
+  public function importUser(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'upload'    => 'required|max:2048|mimes:xls,xlsx'
+    ]);
+
+    if($validator->fails()){
+      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
+    }
+
+    Excel::import(new UsersImport, $request->file('upload'));
+    return $this->ok('', 'berhasil import data user');
   }
 }
