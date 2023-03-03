@@ -38,28 +38,16 @@ class BookController extends Controller
   /**
    * Store a newly created resource in storage.
    */
-  public function store(Request $request): JsonResponse
+  public function store(BookStoreRequest $request): JsonResponse
   {
 
-    $validator = Validator::make($request->all(), [
-      'book_code'         => 'required|string|max:255',
-      'book_title'        => 'required|string|max:255',
-      'author'            => 'required|string|max:255',
-      'publisher'         => 'required|string|max:255',
-      'stock'             => 'required|integer',
-    ]);
-
-    if($validator->fails()){
-      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
-    }
-
     $store_book = [
-      'book_code'         => $request->book_code,
-      'book_title'        => $request->book_title,
-      'author'            => $request->author,
-      'publisher'         => $request->publisher,
-      'available_stock'   => (int)$request->stock,
-      'total_stock'   => (int)$request->stock,
+      'book_code'         => $request->validated('book_code'),
+      'book_title'        => $request->validated('book_title'),
+      'author'            => $request->validated('author'),
+      'publisher'         => $request->validated('publisher'),
+      'available_stock'   => (int)$request->validated('stock'),
+      'total_stock'   => (int)$request->validated('stock'),
     ];
 
     try {
@@ -92,38 +80,23 @@ class BookController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  public function update(Request $request, string $id): JsonResponse
+  public function update(BookStoreRequest $request, string $id): JsonResponse
   {
 
     $book = Book::findOrFail($id);
     $loan = DB::table('loans')->where('book_id', '=', $id)->sum('total_loan');
-
-    // return $this->ok(['book' => $book, 'loan' => gettype($loan)], '');
-
-    $validator = Validator::make($request->all(), [
-      'book_code'         => 'required|string|max:255',
-      'book_title'        => 'required|string|max:255',
-      'author'            => 'required|string|max:255',
-      'publisher'         => 'required|string|max:255',
-      'stock'             => 'required|integer',
-    ]);
-
     
-    if($validator->fails()){
-      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
-    }
-    
-    if((int)$loan > $request->stock){
+    if((int)$loan > $request->validated('stock')){
       return $this->error('stock tidak boleh kurang dari buku yang sudah di pinjam', 500, []);
     }
 
     $update_book = [
-      'book_code'         => $request->book_code,
-      'book_title'        => $request->book_title,
-      'author'            => $request->author,
-      'publisher'         => $request->publisher,
-      'available_stock'   => (int)$request->stock - (int)$loan,
-      'total_stock'       => (int)$request->stock,
+      'book_code'         => $request->validated('book_code'),
+      'book_title'        => $request->validated('book_title'),
+      'author'            => $request->validated('author'),
+      'publisher'         => $request->validated('publisher'),
+      'available_stock'   => (int)$request->validated('stock') - (int)$loan,
+      'total_stock'       => (int)$request->validated('stock'),
     ];
 
     try {

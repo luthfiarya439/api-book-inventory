@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BookStoreRequest extends FormRequest
+class BookStoreRequest extends BaseRequest
 {
   /**
    * Determine if the user is authorized to make this request.
@@ -26,8 +26,9 @@ class BookStoreRequest extends FormRequest
       'book_title'        => 'required|string|max:255',
       'author'            => 'required|string|max:255',
       'publisher'         => 'required|string|max:255',
-      'available_stock'   => 'required|integer',
-      'total_stock'       => 'required|integer',
+      'stock'             => 'required|integer',
+      // 'available_stock'   => 'required|integer',
+      // 'total_stock'       => 'required|integer',
     ];
   }
 }

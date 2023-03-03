@@ -28,62 +28,9 @@ class AuthController extends Controller
       $name = $auth->name;
       return $this->ok(['token' => $token, 'name' => $name], 'login berhasil');
     }
-
-    // $user = User::where('ni', $request->ni)->first();
-
-    // if($user){
-    //   if($user->role == 'Super Admin'){
-    //     if(Hash::check($request->password, $user->password)){
-    //       // create token
-    //       // $user->tokens()->where('name', 'token')->delete();
-    //       $token = $user->createToken('apiToken')->plainTextToken;
-
-    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-    //     }
-    //     else{
-    //       return $this->error('Password Salah', 422);
-    //     }
-    //   }
-    //   if($user->role == 'Admin'){
-    //     if(Hash::check($request->password, $user->password)){
-    //       // create token
-    //       // $user->tokens()->where('name', 'token')->delete();
-    //       $token = $user->createToken('apiToken')->plainTextToken;
-
-    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-    //     }
-    //     else{
-    //       return $this->error('Password Salah', 422);
-    //     }
-    //   }
-    //   if($user->role == 'Teachers'){
-    //     if(Hash::check($request->password, $user->password)){
-    //       // create token
-    //       // $user->tokens()->where('name', 'token')->delete();
-    //       $token = $user->createToken('apiToken')->plainTextToken;
-
-    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-    //     }
-    //     else{
-    //       return $this->error('Password Salah', 422);
-    //     }
-    //   }
-    //   if($user->role == 'Students'){
-    //     if(Hash::check($request->password, $user->password)){
-    //       // create token
-    //       // $user->tokens()->where('name', 'token')->delete();
-    //       $token = $user->createToken('apiToken')->plainTextToken;
-
-    //       return $this->ok(['token' => $token, 'user' => $user], 'login berhasil');
-    //     }
-    //     else{
-    //       return $this->error('Password Salah', 422);
-    //     }
-    //   }
-    // }
-    // else{
-    //   return $this->error('Pengguna Tidak Diketahui!', 404);
-    // }
+    else{
+      return $this->error('nomor induk atau password salah', 404, []);
+    }
   }
 
   public function logout(Request $request)
