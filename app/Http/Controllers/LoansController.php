@@ -17,13 +17,16 @@ class LoansController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index(): JsonResponse
+  public function index(Request $request): JsonResponse
   {
     $loans = DB::table('loans')
       ->join('users', 'loans.user_id', '=', 'users.id')
       ->join('books', 'loans.book_id', '=', 'books.id')
       ->select('loans.id', 'users.name', 'loans.book_id', 'books.book_title', 'loans.total_loan', 'loans.loan_code')
-      ->get();
+      ->where('loan_code', 'like', '%' . $request->get('search') . '%')
+      // ->orderBy('created_at', 'desc')
+      ->paginate($request->get('per_page', 10));
+      // ->get();
     return $this->ok($loans, 'berhasil get pinjaman', 200);
   }
 

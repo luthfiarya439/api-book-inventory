@@ -17,14 +17,13 @@ class BookController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index(): JsonResponse
+  public function index(Request $request): JsonResponse
   {
-    // $books = DB::table('books')->get();
-    $books = Book::all();
+    $query = Book::query();
+    $query->where('book_title', 'like', '%' . $request->get('search') . '%')
+          ->orWhere('book_code', 'like', '%' . $request->get('search') . '%');
+    $books = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page'));
     return $this->ok($books, 'Berhasil Get Buku', 200);
-    // return response()->json($response, 200);
-    // return response()->json($response);
-    // return response($response);
   }
 
   /**
