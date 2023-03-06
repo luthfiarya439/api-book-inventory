@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('admin/users', UserController::class);
     Route::get('admin/dashboard', [DashboardController::class, 'index']);
     Route::post('admin/users/import', [UserController::class, 'importUser']);
+    Route::post('admin/books/import', [BookController::class, 'importBook']);
   });
 
   Route::middleware('checkrole:User')->group(function () {

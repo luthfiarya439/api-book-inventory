@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImportExcelRequest;
 use App\Imports\UsersImport;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -17,9 +18,13 @@ class UserController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index(): JsonResponse
+  public function index(Request $request): JsonResponse
   {
-    $users = User::all();
+    // $users = User::all();
+    $query = User::query();
+    $query->where('name', 'like', '%' . $request->get('search') . '%')
+          ->orWhere('ni', 'like', '%'. $request->get('search'). '%');
+    $users = $query->orderBy('role', 'asc')->paginate($request->get('per_page', 10));
     return $this->ok($users, 'berhasil get user');
   }
 
@@ -150,17 +155,9 @@ class UserController extends Controller
     return $this->ok($user, 'berhasil menghapus user');
   }
 
-  public function importUser(Request $request)
+  public function importUser(ImportExcelRequest $request)
   {
-    $validator = Validator::make($request->all(), [
-      'upload'    => 'required|max:2048|mimes:xls,xlsx'
-    ]);
-
-    if($validator->fails()){
-      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
-    }
-
-    Excel::import(new UsersImport, $request->file('upload'));
+    Excel::import(new UsersImport, $request->validated('upload'));
     return $this->ok('', 'berhasil import data user');
   }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddLoanRequest;
+use App\Http\Requests\UpdateLoanRequest;
 use App\Models\Book;
 use App\Models\Loan;
 use Illuminate\Http\JsonResponse;
@@ -41,32 +43,22 @@ class LoansController extends Controller
   /**
    * Store a newly created resource in storage.
    */
-  public function store(Request $request): JsonResponse
+  public function store(AddLoanRequest $request): JsonResponse
   {
-    $validator = Validator::make($request->all(), [
-      'book_id'       => 'required|string',
-      'total_loan'    => 'required|integer'
-    ]);
-
-    if ($validator->fails()) {
-      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
-    }
-
-    // return $this->ok($request->book_id, '', 200);
-
-    $book = Book::findOrFail($request->book_id);
+ 
+    $book = Book::findOrFail($request->validated('book_id'));
 
     $loan_data = [
       'user_id'     => auth()->user()->id,
-      'book_id'     => $request->book_id,
-      'total_loan'  => $request->total_loan,
+      'book_id'     => $request->validated('book_id'),
+      'total_loan'  => $request->validated('total_loan'),
       'loan_code'   => date('YmdHis'). '-' .rand(0, 100). '-' .rand(101, 200)
     ];
 
     if ($book) {
       try {
         DB::beginTransaction();
-        Book::where('id', $request->book_id)->decrement('available_stock', $request->total_loan);
+        $book->decrement('available_stock', $request->validated('total_loan'));
         Loan::create($loan_data);
       } catch (\Throwable $th) {
         DB::rollBack();
@@ -98,49 +90,29 @@ class LoansController extends Controller
   /**
    * Update the specified resource in storage.
    */
-  public function update(Request $request, string $id): JsonResponse
+  public function update(UpdateLoanRequest $request, string $id): JsonResponse
   {
-
-    $get_loan = Loan::findOrFail($id);
-    // $sum_loan = DB::table('loans')->where('id', '=', $id)->sum('total_loan');
-    $sum_loan = DB::table('loans')->where('id', '=', $id)->get();
-
-    $validator = Validator::make($request->all(), [
-      'book_id'     => 'required|string',
-      'loan_code'   => 'required|string',
-      'return'      => 'required|integer'
-    ]);
-
-    if($validator->fails()){
-      return $this->error('error validasi', 500, ['error' => $validator->messages()->all()]);
-    }
-    
+    $get_loan = Loan::where('id', $id)->where('loan_code', $request->validated('loan_code'))->firstOrFail();
+    $get_book = Book::where('id', $get_loan->book_id)->firstOrFail();
     DB::beginTransaction();
-    if((int)$request->return == (int)$sum_loan[0]->total_loan){
+    if((int)$request->validated('return') == (int)$get_loan->total_loan){
       try {
-        $loan = Loan::where('id', $id)->where('loan_code', $request->loan_code)->firstOrFail();
-        $loan->delete();
-      } catch (\Throwable $th) {
-        return $this->error('error', 500, ['error' => $th->getMessage()]);
-        
-      }
-      try {
-        Book::where('id', $request->book_id)->increment('available_stock', $request->return);
+        $get_loan->delete();
+        $get_book->increment('available_stock', $request->validated('return'));
       } catch (\Throwable $th) {
         DB::rollBack();
         return $this->error('error', 500, ['error' => $th->getMessage()]);
       }
     }
-    elseif((int)$request->return < (int)$sum_loan[0]->total_loan){
+    elseif((int)$request->return < (int)$get_loan->total_loan){
       try {
-        $loan = Loan::where('id', $id)->where('loan_code', $request->loan_code)->decrement('total_loan', $request->return);
-        Book::where('id', $request->book_id)->increment('available_stock', $request->return);
+        $get_loan->decrement('total_loan', $request->validated('return'));
+        $get_book->increment('available_stock', $request->validated('return'));
       } catch (\Throwable $th) {
         DB::rollBack();
         return $this->error('error', 500, ['error' => $th->getMessage()]);
       }
     }
-    // elseif($sum_loan < $request->return){
     else{
       return $this->error('tidak bisa mengembalikan lebih dari yang di pinjam', 500, []);
     }

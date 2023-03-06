@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BookStoreRequest;
+use App\Http\Requests\ImportExcelRequest;
+use App\Imports\BooksImport;
 use App\Models\Book;
 use App\Models\Loan;
 use Illuminate\Http\JsonResponse;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BookController extends Controller
 {
@@ -22,7 +25,7 @@ class BookController extends Controller
     $query = Book::query();
     $query->where('book_title', 'like', '%' . $request->get('search') . '%')
           ->orWhere('book_code', 'like', '%' . $request->get('search') . '%');
-    $books = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page'));
+    $books = $query->orderBy('created_at', 'desc')->paginate($request->get('per_page', 10));
     return $this->ok($books, 'Berhasil Get Buku', 200);
   }
 
@@ -130,5 +133,12 @@ class BookController extends Controller
   {
     $loaned_book = DB::table('books')->whereColumn('available_stock', '<', 'total_stock')->get();
     return $this->ok($loaned_book, 'berhasil get buku terpinjam');
+  }
+
+  
+  public function importBook(ImportExcelRequest $request)
+  {
+    Excel::import(new BooksImport, $request->validated('upload'));
+    return $this->ok('', 'berhasil import data buku');
   }
 }
